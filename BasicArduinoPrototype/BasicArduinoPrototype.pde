@@ -56,7 +56,7 @@ void displayVideo(Movie movie) {
   }
 }
 
-
+//tets
 
 void serialEvent(Serial myPort) {
   if (!isPlaying) { // Only read serial if no video is playing
