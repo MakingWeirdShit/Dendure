@@ -56,9 +56,7 @@ void displayVideo(Movie movie) {
   }
 }
 
-//void movieEvent(Movie m) {
-//  m.read();
-//}
+
 
 void serialEvent(Serial myPort) {
   if (!isPlaying) { // Only read serial if no video is playing
