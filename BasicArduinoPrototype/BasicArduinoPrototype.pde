@@ -7,9 +7,14 @@ HashMap<String, Movie> videoMap;
 Movie currentMovie;
 boolean isPlaying = false;
 String myString = "";
+int secondDisplay = 2;
 
+void settings() {
+  // Set to fullscreen on the second display
+  fullScreen(P2D, secondDisplay);
+}
 void setup() {
-  size(1080, 1920);
+  
   frameRate(25);
 
   String portName = Serial.list()[0];
@@ -37,7 +42,7 @@ void draw() {
   if (isPlaying && currentMovie != null) {
     displayVideo(currentMovie);
   } else {
-    background(255, 0, 0); // Draw background only if no video is playing
+    background(0, 0, 0); // Draw background only if no video is playing
   }
 }
 
