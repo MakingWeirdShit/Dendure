@@ -6,14 +6,11 @@
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 
-String cardUID = "B0 08 53 22";
-String tagUID = "C7 EC 93 52";
-
 void setup() {
   Serial.begin(9600);
   SPI.begin();
   mfrc522.PCD_Init();
-  Serial.println("Place your card/tag on the RFID reader...");
+  
 }
 
 void loop() {
@@ -36,12 +33,8 @@ void loop() {
   uid.trim();
   uid.toUpperCase();
 
-  // Send the UID to Processing
-  if (uid.equals(cardUID)) {
-    Serial.println("CARD");
-  } else if (uid.equals(tagUID)) {
-    Serial.println("TAG");
-  }
+  // Send the UID over the serial port
+  Serial.println(uid);
 
   // Halt PICC
   mfrc522.PICC_HaltA();
