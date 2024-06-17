@@ -15,6 +15,9 @@ boolean setupComplete = false;
 boolean serialReady = false; // Flag to track if serial port is ready
 boolean canScanNFC = true; // Flag to allow or disallow NFC scanning
 
+//issues, flickers like a mf, the first time gstreamer need to be scanned and then it plays so it takes like 10 seconds to play first try
+
+
 class VideoData {
   String videoPath;
   int[] lightColor;
