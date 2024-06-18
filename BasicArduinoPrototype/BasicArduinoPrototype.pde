@@ -28,6 +28,8 @@ class VideoData {
 void settings() {
   // Set to fullscreen on the second display
   fullScreen(P2D, secondDisplay);
+  //disable opengl hardware acceleratoin
+  noSmooth();
 }
 
 void setup() {
