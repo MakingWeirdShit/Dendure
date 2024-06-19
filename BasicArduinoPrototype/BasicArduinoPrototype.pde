@@ -15,9 +15,6 @@ boolean setupComplete = false;
 boolean serialReady = false; // Flag to track if serial port is ready
 boolean canScanNFC = true; // Flag to allow or disallow NFC scanning
 
-//issues, flickers like a mf, the first time gstreamer need to be scanned and then it plays so it takes like 10 seconds to play first try
-
-
 class VideoData {
   String videoPath;
   int[] lightColor;
@@ -34,12 +31,19 @@ void settings() {
 }
 
 void setup() {
+  println("Setup started");
+  frameRate(25);
   String[] ports = Serial.list();
   if (ports.length > 0) {
-    myPort = new Serial(this, ports[0], 9600);
-    myPort.bufferUntil('\n');
-    serialReady = true;
-    println("Serial port opened: " + ports[0]);
+    try {
+      myPort = new Serial(this, ports[0], 9600);
+      myPort.bufferUntil('\n');
+      serialReady = true;
+      println("Serial port opened: " + ports[0]);
+    } catch (Exception e) {
+      println("Error opening serial port: " + e.getMessage());
+      exit();
+    }
   } else {
     println("No serial ports available. Check connections.");
     exit();
@@ -50,8 +54,14 @@ void setup() {
 
   println("Video paths initialized");
 
+  // Preload all videos
+  preloadVideos();
+
+  println("All videos preloaded");
+
   // Set a flag indicating setup is complete
   setupComplete = true;
+  println("Setup complete");
 }
 
 void draw() {
@@ -68,10 +78,7 @@ void draw() {
 
 void drawVideoState() {
   if (currentMovie != null) {
-    if (currentMovie.available()) {
-      currentMovie.read();
-      image(currentMovie, 0, 0, width, height); // Draw the current frame
-    }
+    image(currentMovie, 0, 0, width, height); // Draw the current frame
 
     // Check if the movie has reached the end
     if (currentMovie.time() >= currentMovie.duration() - 0.1 && !currentMovie.isPlaying()) {
@@ -79,6 +86,10 @@ void drawVideoState() {
       endVideoPlayback();
     }
   }
+}
+
+void movieEvent(Movie m) {
+  m.read();
 }
 
 void drawWaitingState() {
@@ -128,17 +139,21 @@ void serialEvent(Serial myPort) {
 void playVideo(String identifier) {
   if (videoMap.containsKey(identifier)) {
     VideoData videoData = videoMap.get(identifier);
-    currentMovie = new Movie(this, videoData.videoPath);
-    currentMovie.play();
-    currentMovie.pause(); // Ensure the movie is loaded
-    isPlaying = true;
-    println("Playing video for identifier: " + identifier);
-    currentMovie.jump(0); // Jump to the start of the video
-    currentMovie.play();
-    currentMovie.speed(1); // Ensure normal speed playback
-    setLighting(videoData.lightColor); // Set lighting color
-    println("Current time after jump: " + currentMovie.time());
-    println("Duration of video: " + currentMovie.duration());
+    try {
+      currentMovie = new Movie(this, videoData.videoPath);
+      currentMovie.play();
+      currentMovie.pause(); // Ensure the movie is loaded
+      isPlaying = true;
+      println("Playing video for identifier: " + identifier);
+      currentMovie.jump(0); // Jump to the start of the video
+      currentMovie.play();
+      currentMovie.speed(1); // Ensure normal speed playback
+      setLighting(videoData.lightColor); // Set lighting color
+      println("Current time after jump: " + currentMovie.time());
+      println("Duration of video: " + currentMovie.duration());
+    } catch (Exception e) {
+      println("Error loading video: " + e.getMessage());
+    }
   } else {
     println("No video found for identifier: " + identifier);
   }
@@ -158,10 +173,25 @@ void endVideoPlayback() {
 }
 
 void loadHardcodedData() {
-  videoMap.put("04 EA E1 04 BC 2A 81", new VideoData("Sutamentu Di Catibu No Subtitles.mp4", new int[]{255, 0, 0}));
+  videoMap.put("04 EA E1 04 BC 2A 81", new VideoData("SutamentuDiCatibu.mp4", new int[]{255, 0, 0}));
   videoMap.put("04 FD EB 04 BC 2A 81", new VideoData("SinjaHorta.mp4", new int[]{255, 165, 0}));
   videoMap.put("04 AE F5 22 B7 2A 81", new VideoData("AjoZusternan.mp4", new int[]{255, 165, 0}));
   // Add additional hardcoded mappings as needed
+}
+
+void preloadVideos() {
+  for (Map.Entry<String, VideoData> entry : videoMap.entrySet()) {
+    String identifier = entry.getKey();
+    String videoPath = entry.getValue().videoPath;
+    try {
+      Movie movie = new Movie(this, videoPath);
+      movie.play();
+      movie.pause();
+      println("Preloaded video: " + videoPath);
+    } catch (Exception e) {
+      println("Error preloading video: " + videoPath + " - " + e.getMessage());
+    }
+  }
 }
 
 void setLighting(int[] rgb) {

@@ -44,7 +44,7 @@ void draw() {
   
   println(smoothedSum);
   // Map the smoothed amplitude to a color intensity
-  int colorIntensity = (int)map(smoothedSum, 0, 0.40, 0, 255);
+  int colorIntensity = (int)map(smoothedSum, 0, 0.05, 0, 255);
   colorIntensity = constrain(colorIntensity, 0, 255);
   
   // Set the background color based on the smoothed amplitude
